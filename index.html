@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pas Foto 3×4 Background Merah/Biru</title>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#315b9c 0%,#244d89 100%);color:#333}
+.container{width:100%;max-width:720px;margin:auto;padding:15px 12px 50px}
+.header{background:#fff;border-radius:30px;padding:32px 18px 28px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.15);margin-bottom:16px}
+.header h1{margin:0;color:#234b83;font-size:clamp(27px,7vw,35px);line-height:1.12}
+.header p{color:#666;font-size:18px;line-height:1.3;margin:14px auto 0}
+.main-card{background:#fff;border-radius:28px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.14)}
+.step{background:#f8faff;border:2px solid #e1e7f2;border-radius:21px;padding:17px;margin-bottom:16px}
+.step-title{display:flex;align-items:center;gap:11px;color:#244b83;font-size:20px;font-weight:bold;margin-bottom:15px}
+.number{width:37px;height:37px;flex:none;border-radius:50%;background:#2d5b9c;color:white;display:flex;justify-content:center;align-items:center;font-size:19px}
+.upload-box{border:5px dashed #315d9e;border-radius:24px;background:#fafbff;padding:58px 15px;text-align:center;cursor:pointer;transition:.2s}
+.upload-box:hover{background:#edf4ff}
+.upload-icon{font-size:62px;line-height:1}
+.upload-title{margin-top:18px;color:#28528d;font-size:22px;font-weight:bold}
+.upload-subtitle{color:#999;font-size:16px;margin-top:9px}
+#fileInput{display:none}
+.nisn-input{width:100%;padding:17px 20px;border:4px solid #d7ddea;border-radius:17px;outline:none;background:#fff;font-size:20px;letter-spacing:3px;color:#333}
+.nisn-input:focus{border-color:#315d9e}
+.help{margin-top:8px;color:#777;font-size:15px}
+.colors{display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap}
+.color-button{width:76px;height:76px;border-radius:50%;border:5px solid #d1d1d1;cursor:pointer;transition:.2s}
+.color-button:hover{transform:scale(1.07)}
+.color-button.active{border-color:#222;box-shadow:0 0 0 3px #fff,0 0 0 7px #315d9e}
+.bg-red{background:#ed3038}.bg-blue-light{background:#2990dc}.bg-blue{background:#1769bd}.bg-white{background:#fff}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.preview-item{text-align:center}
+.preview-title{font-size:19px;font-weight:bold;color:#555;margin-bottom:10px}
+.canvas-wrapper{width:100%;aspect-ratio:3/4;border-radius:17px;overflow:hidden;background:#eee;box-shadow:0 7px 22px rgba(0,0,0,.13)}
+canvas{width:100%;height:100%;display:block}
+.control{margin-top:20px}
+.control-label{font-size:18px;font-weight:bold;color:#555;margin-bottom:8px}
+.value{color:#315d9e}
+.range{width:100%;height:8px;accent-color:#315d9e}
+.button{width:100%;border:none;border-radius:17px;padding:17px;margin-top:12px;color:#fff;font-size:20px;font-weight:bold;cursor:pointer;transition:.2s}
+.button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.reset-button{background:#315d9e}.change-button{background:#ff9200}.download-button{background:#65b879}
+.info{margin-top:16px;padding:16px;border-radius:15px;background:#e7f7e9;color:#3c8147;font-size:15px;line-height:1.5}
+.process-box{margin-top:17px;background:#fff4ce;border:2px solid #ffe7a0;border-radius:17px;padding:17px}
+.process-text{text-align:center;color:#87691c;font-size:18px;font-weight:bold;margin-bottom:11px}
+.progress-track{width:100%;height:17px;background:#dedede;border-radius:50px;overflow:hidden}
+.progress-bar{width:0%;height:100%;border-radius:50px;background:linear-gradient(90deg,#315d9e,#6196e7);transition:width .15s linear}
+.percent{text-align:center;color:#315d9e;font-size:19px;font-weight:bold;margin-top:7px}
+.status{text-align:center;color:#777;font-size:14px;padding:12px 5px 2px}
+#editorMenu{display:none}
+@media(max-width:600px){
+.container{padding:10px 9px 35px}.header{padding:27px 13px;border-radius:25px}.header h1{font-size:28px}.header p{font-size:17px}
+.main-card{padding:12px;border-radius:23px}.step{padding:15px}.step-title{font-size:18px}.upload-box{padding:48px 10px}
+.upload-icon{font-size:55px}.upload-title{font-size:20px}.preview-grid{grid-template-columns:1fr}
+.canvas-wrapper{max-width:280px;margin:auto}.color-button{width:68px;height:68px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📸 Pas Foto 3×4 Background<br>Merah/Biru</h1>
+<p>Gratis, privat, bisa dipakai di HP — untuk keperluan NISN</p>
+</div>
+
+<div class="main-card">
+<div class="step">
+<div class="upload-box" id="uploadBox">
+<div class="upload-icon">🖼️</div>
+<div class="upload-title">Ketuk atau seret foto ke sini</div>
+<div class="upload-subtitle">Format: JPG, PNG, WebP (maks. 10MB)</div>
+<input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+</div>
+</div>
+
+<div id="editorMenu">
+<div class="step">
+<div class="step-title"><div class="number">1</div>Masukkan NISN (untuk nama file)</div>
+<input id="nisn" class="nisn-input" type="text" inputmode="numeric" maxlength="10" placeholder="Contoh: 0012345678">
+<div class="help">NISN biasanya 10 digit angka</div>
+</div>
+
+<div class="step">
+<div class="step-title"><div class="number">2</div>Pilih warna background</div>
+<div class="colors">
+<button class="color-button bg-red active" data-color="#ed3038" aria-label="Background merah"></button>
+<button class="color-button bg-blue-light" data-color="#2990dc" aria-label="Background biru muda"></button>
+<button class="color-button bg-blue" data-color="#1769bd" aria-label="Background biru"></button>
+<button class="color-button bg-white" data-color="#ffffff" aria-label="Background putih"></button>
+</div>
+</div>
+
+<div class="step">
+<div class="step-title"><div class="number">3</div>Atur posisi & zoom (rasio 3×4)</div>
+<div class="preview-grid">
+<div class="preview-item"><div class="preview-title">Foto Asli</div><div class="canvas-wrapper"><canvas id="originalCanvas" width="300" height="400"></canvas></div></div>
+<div class="preview-item"><div class="preview-title">Hasil (3×4)</div><div class="canvas-wrapper"><canvas id="resultCanvas" width="600" height="800"></canvas></div></div>
+</div>
+
+<div class="control">
+<div class="control-label">Zoom: <span id="zoomValue" class="value">100%</span></div>
+<input id="zoom" class="range" type="range" min="50" max="250" value="100">
+</div>
+<div class="control">
+<div class="control-label">Geser Horizontal: <span id="horizontalValue" class="value">0</span></div>
+<input id="horizontal" class="range" type="range" min="-250" max="250" value="0">
+</div>
+<div class="control">
+<div class="control-label">Geser Vertikal: <span id="verticalValue" class="value">0</span></div>
+<input id="vertical" class="range" type="range" min="-250" max="250" value="0">
+</div>
+<button id="resetCrop" class="button reset-button">🔄 Reset Crop</button>
+<div class="info">💡 Gunakan slider <b>Zoom</b> untuk memperbesar foto, dan <b>Geser</b> untuk mengatur wajah berada di posisi yang sesuai pada frame 3×4.</div>
+</div>
+
+<button id="changePhoto" class="button change-button">🔄 Ganti Foto</button>
+<button id="downloadButton" class="button download-button" disabled>⬇️ Download (isi NISN)</button>
+
+<div class="process-box">
+<div id="processText" class="process-text">⚙️ Menunggu foto...</div>
+<div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+<div id="percent" class="percent">0%</div>
+</div>
+<div id="status" class="status">Foto belum diproses.</div>
+</div>
+</div>
+</div>
+
+<script>
+const fileInput=document.getElementById("fileInput");
+const uploadBox=document.getElementById("uploadBox");
+const editorMenu=document.getElementById("editorMenu");
+const originalCanvas=document.getElementById("originalCanvas");
+const resultCanvas=document.getElementById("resultCanvas");
+const originalCtx=originalCanvas.getContext("2d");
+const resultCtx=resultCanvas.getContext("2d");
+const nisn=document.getElementById("nisn");
+const zoom=document.getElementById("zoom");
+const horizontal=document.getElementById("horizontal");
+const vertical=document.getElementById("vertical");
+const zoomValue=document.getElementById("zoomValue");
+const horizontalValue=document.getElementById("horizontalValue");
+const verticalValue=document.getElementById("verticalValue");
+const resetCrop=document.getElementById("resetCrop");
+const changePhoto=document.getElementById("changePhoto");
+const downloadButton=document.getElementById("downloadButton");
+const progressBar=document.getElementById("progressBar");
+const percent=document.getElementById("percent");
+const processText=document.getElementById("processText");
+const status=document.getElementById("status");
+
+let photo=null;
+let backgroundColor="#ed3038";
+let isProcessing=false;
+let processingToken=0;
+
+uploadBox.addEventListener("click",()=>fileInput.click());
+uploadBox.addEventListener("dragover",e=>{e.preventDefault();uploadBox.style.background="#edf4ff"});
+uploadBox.addEventListener("dragleave",()=>uploadBox.style.background="");
+uploadBox.addEventListener("drop",e=>{
+ e.preventDefault();uploadBox.style.background="";
+ const file=e.dataTransfer.files[0];if(file)loadPhoto(file);
+});
+fileInput.addEventListener("change",e=>{
+ const file=e.target.files[0];if(file)loadPhoto(file);
+});
+
+function loadPhoto(file){
+ if(!file.type.startsWith("image/")){alert("File yang dipilih harus berupa foto.");return}
+ if(file.size>10*1024*1024){alert("Ukuran foto maksimal 10 MB.");return}
+ const reader=new FileReader();
+ reader.onload=e=>{
+  const img=new Image();
+  img.onload=()=>{
+   photo=img;
+   editorMenu.style.display="block";
+   resetCropValues();
+   drawOriginal();
+   drawResult();
+   downloadButton.disabled=false;
+   setProgress(0,"📸 Foto berhasil dimuat. Siap diproses.");
+   status.textContent="Atur background, zoom dan posisi foto.";
+   editorMenu.scrollIntoView({behavior:"smooth",block:"start"});
+   startProcessing();
+  };
+  img.onerror=()=>alert("Foto tidak dapat dibaca.");
+  img.src=e.target.result;
+ };
+ reader.readAsDataURL(file);
+}
+
+function drawOriginal(){
+ if(!photo)return;
+ originalCtx.clearRect(0,0,originalCanvas.width,originalCanvas.height);
+ originalCtx.fillStyle="#eeeeee";
+ originalCtx.fillRect(0,0,originalCanvas.width,originalCanvas.height);
+ const scale=Math.min(originalCanvas.width/photo.width,originalCanvas.height/photo.height);
+ const width=photo.width*scale,height=photo.height*scale;
+ const x=(originalCanvas.width-width)/2,y=(originalCanvas.height-height)/2;
+ originalCtx.drawImage(photo,x,y,width,height);
+}
+
+function drawResult(){
+ if(!photo)return;
+ const W=resultCanvas.width,H=resultCanvas.height;
+ resultCtx.clearRect(0,0,W,H);
+ resultCtx.fillStyle=backgroundColor;
+ resultCtx.fillRect(0,0,W,H);
+ const zoomNumber=Number(zoom.value)/100;
+ const baseScale=Math.max(W/photo.width,H/photo.height);
+ const scale=baseScale*zoomNumber;
+ const width=photo.width*scale,height=photo.height*scale;
+ const x=(W-width)/2+Number(horizontal.value);
+ const y=(H-height)/2+Number(vertical.value);
+ resultCtx.drawImage(photo,x,y,width,height);
+}
+
+function resetCropValues(){
+ zoom.value=100;horizontal.value=0;vertical.value=0;
+ updateValues();drawResult();
+}
+function updateValues(){
+ zoomValue.textContent=zoom.value+"%";
+ horizontalValue.textContent=horizontal.value;
+ verticalValue.textContent=vertical.value;
+}
+[zoom,horizontal,vertical].forEach(el=>el.addEventListener("input",()=>{
+ updateValues();drawResult();
+}));
+resetCrop.addEventListener("click",resetCropValues);
+
+document.querySelectorAll(".color-button").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll(".color-button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  backgroundColor=btn.dataset.color;
+  drawResult();
+  status.textContent="Background diperbarui.";
+ });
+});
+
+changePhoto.addEventListener("click",()=>{
+ fileInput.value="";
+ fileInput.click();
+});
+
+nisn.addEventListener("input",()=>{
+ nisn.value=nisn.value.replace(/\D/g,"").slice(0,10);
+ if(nisn.value.length===10){
+  downloadButton.disabled=false;
+  downloadButton.textContent="⬇️ Download "+nisn.value+".jpg";
+ }else{
+  downloadButton.disabled=!photo;
+  downloadButton.textContent="⬇️ Download (isi NISN)";
+ }
+});
+
+downloadButton.addEventListener("click",()=>{
+ if(!photo)return;
+ if(!/^\d{10}$/.test(nisn.value)){
+  alert("Masukkan NISN tepat 10 digit angka terlebih dahulu.");
+  nisn.focus();return;
+ }
+ drawResult();
+ resultCanvas.toBlob(blob=>{
+  if(!blob){alert("Gagal membuat file gambar.");return}
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=nisn.value+".jpg";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  status.textContent="Foto berhasil dibuat dan siap digunakan.";
+ },"image/jpeg",0.95);
+});
+
+function setProgress(value,text){
+ progressBar.style.width=value+"%";
+ percent.textContent=Math.round(value)+"%";
+ processText.textContent=text;
+}
+
+function startProcessing(){
+ const token=++processingToken;
+ isProcessing=true;
+ const steps=[
+  [5,"⚙️ Menyiapkan foto..."],
+  [15,"🔍 Membaca ukuran gambar..."],
+  [25,"🖼️ Menyiapkan frame 3×4..."],
+  [40,"🎨 Menyiapkan background..."],
+  [55,"📐 Menyesuaikan komposisi..."],
+  [70,"✨ Merender hasil..."],
+  [82,"🔧 Menyelesaikan pemrosesan..."],
+  [92,"💾 Menyiapkan hasil download..."],
+  [100,"✅ Pemrosesan selesai."]
+ ];
+ steps.forEach(([value,label],index)=>{
+  setTimeout(()=>{
+   if(token!==processingToken)return;
+   setProgress(value,label);
+   if(value===100){
+    isProcessing=false;
+    status.textContent="Pemrosesan selesai. Anda dapat mengatur foto atau download.";
+   }
+  },index*320);
+ });
+}
+
+updateValues();
+</script>
+</body>
+</html>
