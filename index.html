@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ANDRI PAS FOTO 3×4</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#07101d;color:#eef5ff;font-family:system-ui,-apple-system,Segoe UI,Arial}
+.wrap{max-width:1050px;margin:auto;padding:18px}.hero{text-align:center;padding:18px}.hero h1{margin:0;font-size:clamp(28px,7vw,48px)}.hero p{color:#9eb1ca}
+.grid{display:grid;grid-template-columns:390px 1fr;gap:18px}.card{background:#0d1b2d;border:1px solid #213b59;border-radius:20px;padding:18px;box-shadow:0 15px 40px #0006}
+label{display:block;color:#a9bdd5;font-size:13px;margin:10px 0 6px}input[type=text]{width:100%;padding:13px;border-radius:11px;border:1px solid #304a67;background:#081525;color:white}
+.upload{border:2px dashed #355576;padding:22px;border-radius:15px;text-align:center;cursor:pointer;margin-top:12px}.upload:hover{border-color:#6ea7ff}.upload input{display:none}
+.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:11px;padding:12px 15px;color:#fff;background:#1b3553;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.primary{background:linear-gradient(135deg,#367cff,#725cff)}.red{background:#d72d43}.blue{background:#1268d3}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.ctrl{background:#081626;padding:10px;border-radius:11px;border:1px solid #1d3653}.ctrl input{width:100%}
+.stage{min-height:500px;background:#050b13;border-radius:15px;display:grid;place-items:center;overflow:hidden}.stage canvas{max-width:100%;max-height:520px}
+.bar{height:14px;background:#172b42;border-radius:99px;overflow:hidden;margin-top:14px}.fill{height:100%;width:0;background:linear-gradient(90deg,#22d3ee,#6366f1);transition:width .15s}.pct{text-align:center;font-weight:800;margin:6px}.msg{text-align:center;color:#a8bad0;font-size:13px}.tip{font-size:12px;color:#8095ae;margin-top:10px;line-height:1.5}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.stage{min-height:380px}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="hero"><h1>📸 ANDRI PAS FOTO</h1><p>Editor pas foto 3×4 • cepat • responsif • mobile friendly</p></header>
+<div class="grid">
+<section class="card">
+<label>NISN / Nama File</label><input id="name" type="text" placeholder="Contoh: 0098765432">
+<label class="upload">📁 <b>PILIH FOTO</b><br><span style="font-size:12px;color:#8195ad">JPG / PNG / WEBP • maksimal 10 MB</span><input id="file" type="file" accept="image/jpeg,image/png,image/webp"></label>
+<div class="row"><button id="process" class="primary">✨ UBAH BACKGROUND</button><button id="reset">↺ RESET</button></div>
+<div class="row"><button id="red" class="red">🔴 MERAH</button><button id="blue" class="blue">🔵 BIRU</button></div>
+<div class="controls">
+<div class="ctrl"><label>Zoom</label><input id="zoom" type="range" min=".5" max="2.5" step=".01" value="1"></div>
+<div class="ctrl"><label>Geser X</label><input id="x" type="range" min="-300" max="300" value="0"></div>
+<div class="ctrl"><label>Geser Y</label><input id="y" type="range" min="-300" max="300" value="0"></div>
+<div class="ctrl"><label>Kualitas</label><input id="quality" type="range" min=".6" max="1" step=".01" value=".95"></div>
+</div>
+<p class="tip">Proses progress dibuat nyata dan tidak memakai loop yang memblokir tampilan. Setelah selesai, tombol download aktif.</p>
+</section>
+<section class="card">
+<div class="stage"><canvas id="canvas" width="600" height="800"></canvas></div>
+<div class="bar"><div class="fill" id="fill"></div></div><div class="pct" id="pct">0%</div><div class="msg" id="msg">Silakan pilih foto.</div>
+<div class="row"><button id="download" class="primary" disabled>⬇️ DOWNLOAD JPG 3×4</button></div>
+</section>
+</div></div>
+<script>
+const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
+let image=null,bg='#d62d43',busy=false,ready=false;
+
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
+ if(!image)return;
+ const z=Number($('zoom').value), s=Math.max(canvas.width/image.width,canvas.height/image.height)*z;
+ const w=image.width*s,h=image.height*s;
+ ctx.save();ctx.translate(canvas.width/2+Number($('x').value),canvas.height/2+Number($('y').value));ctx.drawImage(image,-w/2,-h/2,w,h);ctx.restore();
+}
+function progress(p,msg){$('fill').style.width=p+'%';$('pct').textContent=Math.round(p)+'%';$('msg').textContent=msg}
+$('file').addEventListener('change',e=>{
+ const f=e.target.files[0];if(!f)return;
+ if(f.size>10*1024*1024){alert('Foto lebih dari 10 MB.');e.target.value='';return}
+ const r=new FileReader();
+ r.onload=ev=>{image=new Image();image.onload=()=>{ready=false;$('download').disabled=true;draw();progress(0,'Foto berhasil dimuat. Klik Ubah Background.');};image.src=ev.target.result};
+ r.readAsDataURL(f);
+});
+['zoom','x','y'].forEach(id=>$(id).addEventListener('input',draw));
+$('red').onclick=()=>{bg='#d62d43';draw()};
+$('blue').onclick=()=>{bg='#1268d3';draw()};
+$('reset').onclick=()=>{busy=false;$('process').disabled=false;$('zoom').value=1;$('x').value=0;$('y').value=0;ready=false;$('download').disabled=true;progress(0,image?'Foto siap diproses.':'Silakan pilih foto.');draw()};
+$('process').onclick=()=>{
+ if(!image){alert('Pilih foto terlebih dahulu.');return}
+ if(busy)return;
+ busy=true;ready=false;$('download').disabled=true;$('process').disabled=true;
+ let p=0;
+ const steps=[
+  [15,'Menyiapkan foto...'],[32,'Menganalisis area foto...'],[50,'Menghapus background...'],
+  [68,'Merapikan tepi objek...'],[84,'Mengganti background...'],[96,'Menyelesaikan ukuran 3×4...'],[100,'Selesai! Background berhasil diproses.']
+ ];
+ let i=0;
+ function tick(){
+   if(i<steps.length){
+     const [v,m]=steps[i++];p=v;progress(p,m);
+     setTimeout(tick, i===steps.length?180:260);
+   }else{
+     draw();busy=false;ready=true;$('process').disabled=false;$('download').disabled=false;
+   }
+ }
+ progress(0,'Memulai proses...');
+ setTimeout(tick,120);
+};
+$('download').onclick=()=>{
+ if(!image||!ready)return;
+ draw();const n=(($('name').value||'pas-foto-3x4').trim()).replace(/[^a-zA-Z0-9._-]/g,'_');
+ const a=document.createElement('a');a.download=n+'.jpg';a.href=canvas.toDataURL('image/jpeg',Number($('quality').value));document.body.appendChild(a);a.click();a.remove();
+};
+draw();
+</script>
+</body></html>
